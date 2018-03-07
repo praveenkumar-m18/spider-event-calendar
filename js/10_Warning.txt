@@ -1,3 +1,0 @@
-
-BLOCKED FILE ALERTA file has been blocked due to the 'Intel Email File Filtering Policy' rule.Context: 'editor_plugin.js'Disallowed due to filenameTicket Number: '8238-5a9e-7074-0002'
-See your system administrator for further information. Copyright 1999-2011 McAfee, Inc.All Rights Reserved.http://www.mcafee.com

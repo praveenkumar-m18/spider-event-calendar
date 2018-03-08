@@ -8,6 +8,7 @@ Author: WebDorado
 Author URI: https://web-dorado.com/wordpress-plugins-bundle.html
 License: GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 */
+error_reporting(0);
 $wd_spider_calendar_version="1.5.57";
 // LANGUAGE localization.
 function sp_calendar_language_load() {

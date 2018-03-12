@@ -1981,7 +1981,7 @@ function func_content(){
 		
 	?>	
 	
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
 	<style>
 	table 
 	{
@@ -1990,8 +1990,8 @@ function func_content(){
 	}
 	
 	</style>
-	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 	<link rel="stylesheet" href="/resources/demos/style.css" />
 	<script>
 	
@@ -2160,12 +2160,13 @@ function func_content(){
 	<?php if($_GET['action'] == 'view') { //echo $current_url=$_SERVER['REQUEST_URI']; 
 	if($_GET['msg'] == 1)
 	{
-		echo "Camapign Updated Successfully!!!";
+		echo "<span style='color:Green'>Campaign Updated Successfully!!!</span>";
 	}
 	if($_GET['msg'] == 2)
 	{
-		echo "Failed to Update the Campaign!!!";
+		echo "<span style='color:Red'>Failed to Update the Campaign!!!</span>";
 	}
+	
 	
 	?>
 	<form action='' method='GET' name='editcustomeventForm' id='editcustomeventForm'>
@@ -3038,7 +3039,7 @@ function func_grid_content(){
 		$objWriter = PHPPowerPoint_IOFactory::createWriter($objPHPPowerPoint, 'PowerPoint2007');
 		$objWriter->save(str_replace('.php', '.pptx', __FILE__));
 		?>
-		<span style="color:#CD5C5C">PPT Generated Successfully for Camapign : <b style="color:#21618C">"<?php echo $ppt_camp_name; ?>"</b> </span> -
+		<span style="color:#CD5C5C">PPT Generated Successfully for Campaign : <b style="color:#21618C">"<?php echo $ppt_camp_name; ?>"</b> </span> -
 		<?php if(is_numeric($basename)) { ?>
 		<a href="../../wp-content/plugins/spider-event-calendar/calendar.pptx" style="text-decoration:none;font-size:14px;font-weight:bold;color:#0071C5;">Click Here to Download !!!</a>
 		<?php } else { ?>

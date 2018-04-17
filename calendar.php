@@ -1599,7 +1599,7 @@ $spider_category_event_table = "CREATE TABLE IF NOT EXISTS `" . $wpdb->prefix . 
   `description` longtext NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
-$spider_event_content_piece_table = "CREATE TABLE IF NOT EXISTS `" . $wpdb->prefix . "spidercalendar_custom_content_piece` (
+/*$spider_event_content_piece_table = "CREATE TABLE IF NOT EXISTS `" . $wpdb->prefix . "spidercalendar_custom_content_piece` (
   `content_id` int(11) NOT NULL AUTO_INCREMENT,
   `event_id` int(11) NOT NULL,
   `tactic_name` varchar(255) NOT NULL,
@@ -1609,7 +1609,33 @@ $spider_event_content_piece_table = "CREATE TABLE IF NOT EXISTS `" . $wpdb->pref
   `url` varchar(255) NOT NULL,
   `content_attachment` varchar(255) NOT NULL,
   PRIMARY KEY (`content_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";*/
+
+$spider_event_content_piece_table = "CREATE TABLE IF NOT EXISTS `" . $wpdb->prefix . "spidercalendar_custom_content_piece` (
+  `content_id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_id` int(11) NOT NULL,
+  `tactic_name` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `date_end` date NOT NULL,
+  `content_channel` varchar(255) NOT NULL,
+  `cta` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `content_attachment` varchar(255) NOT NULL,
+  `time` varchar(20) NOT NULL,
+  `text_for_date` longtext NOT NULL,
+  `userID` varchar(255) NOT NULL,
+  `repeat_method` varchar(255) NOT NULL,
+  `repeat` varchar(255) NOT NULL,
+  `week` varchar(255) NOT NULL,
+  `month` varchar(255) NOT NULL,
+  `month_type` varchar(255) NOT NULL,
+  `monthly_list` varchar(255) NOT NULL,
+  `month_week` varchar(255) NOT NULL,
+  `year_month` varchar(255) NOT NULL,
+  `publish` int(11) NOT NULL,
+   PRIMARY KEY (`content_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
+
   $wpdb->query($spider_event_table);
   $wpdb->query($spider_calendar_table);
   $wpdb->query($spider_category_event_table);
@@ -1746,8 +1772,10 @@ function func_content(){
 			$column_D_Value = $objPHPExcel->getActiveSheet()->getCell("D$i")->getValue();//column D
 			$column_E_Value = $objPHPExcel->getActiveSheet()->getCell("E$i")->getValue();//column E
 			$table_import=$wpdb->prefix.'spidercalendar_custom_content_piece';
-			$query_import = "INSERT INTO ".$table_import."(event_id,tactic_name,publish_date,content_channel,cta,url,content_attachment) 
-			        values ('".$lastid."','".$column_A_Value."','".$InvDate."','".$column_C_Value."','".$column_D_Value."','".$column_E_Value."','')"; 
+			$query_import = "INSERT INTO ".$table_import."(`event_id`,`tactic_name`,`date`,`date_end`,`content_channel`,`cta`,`url`,`content_attachment`,`time`,`text_for_date`,`userID`,
+	   	    `repeat_method`,`repeat`,`week`,`month`,`month_type`,`monthly_list`,`month_week`,`year_month`,`publish`) 
+			values ('".$lastid."','".$column_A_Value."','".$InvDate."','".$InvDate."','".$column_C_Value."','".$column_D_Value."','".$column_E_Value."','','','Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+	        '','no_repeat',1,'','',1,'','',1,1)"; 
 			$query_upload = $wpdb->query($query_import);
 			$i++;
 			}
@@ -1789,8 +1817,10 @@ function func_content(){
 			}
 			
 			$publish_date = date('Y-m-d', strtotime($publish[$i]));
-			$sql2 = "INSERT INTO ".$tablename2."(event_id, tactic_name, publish_date, content_channel,cta, url, content_attachment) VALUES 
-			('$lastid','$tactic_name[$i]','$publish_date','$content','$cta[$i]','$url[$i]','$file_attach_name[$i]')";	
+			$sql2 = "INSERT INTO ".$tablename2."(`event_id`,`tactic_name`,`date`,`date_end`,`content_channel`,`cta`,`url`,`content_attachment`,`time`,`text_for_date`,`userID`,
+	   	    `repeat_method`,`repeat`,`week`,`month`,`month_type`,`monthly_list`,`month_week`,`year_month`,`publish`) VALUES 
+			('$lastid','$tactic_name[$i]','$publish_date','$publish_date','$content','$cta[$i]','$url[$i]','$file_attach_name[$i]','','Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+	         '','no_repeat',1,'','',1,'','',1,1)";
 			$query2 = $wpdb->query($sql2);
 				if($query2)
 				{
@@ -1848,8 +1878,7 @@ function func_content(){
 	{
 		$doc = $fileList;
 	}
-	
-	
+		
 	$file = $_FILES['business_attachment'];
 	$file_name = $file['name'];
 	$file_type = $file ['type'];
@@ -1880,7 +1909,7 @@ function func_content(){
 		   activation = '$audi_activation', key_message = '$key_messages', ideal_voice = '$ideal_voice', analytics = '$analytics',
 		   budget = '$budget', effort = '$effort',final_attachment = '$doc'	WHERE id = ".$ev_id;
 	  
-	       $query_update = $wpdb->query($sql_update);
+	        $query_update = $wpdb->query($sql_update);
 		 
 			$update_content_count = $_POST['update_content_count'];
 			$row_id = $_POST['row_id'];
@@ -1909,10 +1938,56 @@ function func_content(){
 				
 				$publish_date = date('Y-m-d', strtotime($publish[$i]));
 				$tablename4=$wpdb->prefix.'spidercalendar_custom_content_piece';
-				$sql4 = "UPDATE ".$tablename4." SET tactic_name = '$tactic_name[$i]', publish_date = '$publish_date', content_channel = '$content'
+				$sql4 = "UPDATE ".$tablename4." SET tactic_name = '$tactic_name[$i]', date = '$publish_date', date_end = '$publish_date', content_channel = '$content'
 				,cta = '$cta[$i]', url = '$url[$i]', content_attachment = '$attach_prev[$i]' WHERE content_id = '$row_id[$i]' AND event_id = ".$ev_id ;
 				$query4 = $wpdb->query($sql4);
-			}
+			}	
+				//add new tactics to update event start
+				$event_id_val = $_POST['event_update_id'];
+				$content_count2 = $_POST['custom_content_piece2'];
+				$update_content_count = $_POST['update_content_count'];
+				$iVal = $update_content_count + 1;
+				if($content_count2 != 0)
+				{
+					$tablename2=$wpdb->prefix.'spidercalendar_custom_content_piece';
+					
+					$tactic_up1 = $_POST['tactic_up'];
+					$cta_up1 = $_POST['cta_up'];
+					$url_up1 = $_POST['url_up'];
+					$publish_dt = $_POST['publish_up'];
+					$file_attach_up = $_FILES['attachment_up'];
+					$file_attach_up_name = $file_attach_up['name'];
+					$file_attach_up_type = $file_attach_up ['type'];
+					$file_attach_up_size = $file_attach_up ['size'];
+					$file_attach_up_path = $file_attach_up ['tmp_name'];
+					
+					for($y=0;$y<$content_count2;$y++)
+					{
+						if($file_attach_up[$y]!="" && $file_attach_up_size[$y] <= 614400)
+						{ 
+						$upload_content = move_uploaded_file ($file_attach_up_path[$y],$base.'/attachments/content_piece/'.$file_attach_up_name[$y]);
+						}
+						$tot = $y+1;
+						$name_content = 'txtup_'.$tot;
+						$cont_channel = $_POST[$name_content];
+						foreach($cont_channel as $chann)
+						{
+							$content = $chann;
+						}
+						$tactic_up = $tactic_up1[$y];
+						$publish_up = date('Y-m-d', strtotime($publish_dt[$y]));
+						$tactic_up = $tactic_up1[$y];
+						$cta_up = $cta_up1[$y];
+						$url_up = $url_up1[$y];
+						$sql21 = "INSERT INTO ".$tablename2."(`event_id`,`tactic_name`,`date`,`date_end`,`content_channel`,`cta`,`url`,`content_attachment`,`time`,`text_for_date`,`userID`,
+						`repeat_method`,`repeat`,`week`,`month`,`month_type`,`monthly_list`,`month_week`,`year_month`,`publish`) VALUES 
+						('$event_id_val','$tactic_up','$publish_up','$publish_up','$content','$cta_up','$url_up','$file_attach_up_name[$y]','','Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+						'','no_repeat',1,'','',1,'','',1,1)";	
+						$query21 = $wpdb->query($sql21);
+					}
+				}
+				//add new tactics to update event end
+			
 			   if($query4 || $query_update)
 				{ 
 			    ?>
@@ -1972,8 +2047,8 @@ function func_content(){
 		foreach ($content_results as $row_content){
 		$row_id[] = $row_content->content_id;	
 		$tactic[] = $row_content->tactic_name;
-		$publish_date[] = date("m/d/Y", strtotime($row_content->publish_date));
-
+		//$publish_date[] = date("m/d/Y", strtotime($row_content->publish_date));
+		$publish_date[] = date("m/d/Y", strtotime($row_content->date));
 		$content_channel[] = $row_content->content_channel;
 		$cta[] = $row_content->cta;
 		$url[] = $row_content->url;
@@ -2018,6 +2093,9 @@ function func_content(){
 		var bus_prposition = document.getElementById('bus_prposition').value;
 		//var audience =  document.getElementById("audience").checked = false;
 		var key_message = document.getElementById('key_messages').value;
+		var import_tactics = document.getElementById('import_tactics').value;
+		var tactics = document.getElementById('t1').value;
+		var publish = document.getElementById('publish').value;
 		
 		var audience_external = document.getElementById('audience_external').checked;
 		var audience_internal_emp = document.getElementById('audience_internal_emp').checked;
@@ -2078,8 +2156,14 @@ function func_content(){
 		alert('Key Message Cannot be Blank!!!');
 		return false;
 		}
+		if(tactics == '' && publish == '' && import_tactics == '')
+		{
+		alert('Please Add or Import Content Piece!!!');
+		return false;
+		}
 		return true;
 	}
+	
 	
 	function expandCollapse(showHide) { 
         
@@ -2343,22 +2427,22 @@ function func_content(){
 	</tr>
 	<tr>
 	<td colspan="2"><strong><b>Channel:</b><br/>
-	<input type='radio' value='Circuit HR Page' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Circuit HR Page') {?> checked="checked" <?php } ?>/> Circuit HR Page &nbsp;
-	<input type='radio' value='Circuit News' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Circuit News') {?> checked="checked" <?php } ?>/> Circuit News &nbsp;&nbsp;&nbsp;
-	<input type='radio' value='Circuit Microsite' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Circuit Microsite') {?> checked="checked" <?php } ?>/> Circuit Microsite &nbsp;
-	<input type='radio' value='Wordpress Microsite' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Wordpress Microsite') {?> checked="checked" <?php } ?>/> Wordpress Microsite &nbsp;
-	<input type='radio' value='Ask Vote Answer' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Ask Vote Answer') {?> checked="checked" <?php } ?>/> Ask Vote Answer &nbsp;
-	<input type='radio' value='Double Dutch' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Double Dutch') {?> checked="checked" <?php } ?>/> Double Dutch &nbsp;
-	<input type='radio' value='Physical Poster' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Physical Poster') {?> checked="checked" <?php } ?>/> Physical Poster <br/>
-	<input type='radio' value='Digital Sign' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Digital Sign') {?> checked="checked" <?php } ?>/> Digital Sign &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type='radio' value='Circuit_HR_Page' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Circuit_HR_Page') {?> checked="checked" <?php } ?>/> Circuit HR Page &nbsp;
+	<input type='radio' value='Circuit_News' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Circuit_News') {?> checked="checked" <?php } ?>/> Circuit News &nbsp;&nbsp;&nbsp;
+	<input type='radio' value='Circuit_Microsite' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Circuit_Microsite') {?> checked="checked" <?php } ?>/> Circuit Microsite &nbsp;
+	<input type='radio' value='Wordpress_Microsite' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Wordpress_Microsite') {?> checked="checked" <?php } ?>/> Wordpress Microsite &nbsp;
+	<input type='radio' value='Ask_Vote_Answer' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Ask_Vote_Answer') {?> checked="checked" <?php } ?>/> Ask Vote Answer &nbsp;
+	<input type='radio' value='Double_Dutch' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Double_Dutch') {?> checked="checked" <?php } ?>/> Double Dutch &nbsp;
+	<input type='radio' value='Physical_Poster' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Physical_Poster') {?> checked="checked" <?php } ?>/> Physical Poster <br/>
+	<input type='radio' value='Digital_Sign' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Digital_Sign') {?> checked="checked" <?php } ?>/> Digital Sign &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type='radio' value='Email' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Email') {?> checked="checked" <?php } ?>/> Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type='radio' value='Inside Blue' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Inside Blue') {?> checked="checked" <?php } ?>/> Inside Blue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type='radio' value='Inside_Blue' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Inside_Blue') {?> checked="checked" <?php } ?>/> Inside Blue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type='radio' value='Meetup' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Meetup') {?> checked="checked" <?php } ?>/> Meetup &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type='radio' value='My Intel App' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'My Intel App') {?> checked="checked" <?php } ?>/> My Intel App &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type='radio' value='Intel Newsroom' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Intel Newsroom') {?> checked="checked" <?php } ?>/> Intel Newsroom 
+	<input type='radio' value='My_Intel_App' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'My_Intel_App') {?> checked="checked" <?php } ?>/> My Intel App &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type='radio' value='Intel_Newsroom' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Intel_Newsroom') {?> checked="checked" <?php } ?>/> Intel Newsroom 
 	<input type='radio' value='Sharepoint' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Sharepoint') {?> checked="checked" <?php } ?>/> Sharepoint <br/>
 	<input type='radio' value='Webcast' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Webcast') {?> checked="checked" <?php } ?>/> Webcast &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type='radio' value='Enterprise Wiki' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Enterprise Wiki') {?> checked="checked" <?php } ?>/> Enterprise Wiki
+	<input type='radio' value='Enterprise_Wiki' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Enterprise_Wiki') {?> checked="checked" <?php } ?>/> Enterprise Wiki
 	<input type='radio' value='Twitter' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Twitter') {?> checked="checked" <?php } ?>/> Twitter &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type='radio' value='Linkedin' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Linkedin') {?> checked="checked" <?php } ?>/> Linkedin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type='radio' value='Facebook' name='txt_<?php echo $i + 1?>[]' <?php if($content_channel[$i] == 'Facebook') {?> checked="checked" <?php } ?>/>  Facebook &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2382,14 +2466,162 @@ function func_content(){
 	<?php } ?>
 	<input type="hidden" name="ev_id" value="<?php echo $_GET['id']?>"/>
 	<input type="hidden" name="update_content_count" value="<?php echo $rowcount?>"/>
+	
+	
+	<!-- add new tactics in update start -->
 	<tr>
-	<td><input type="submit" name="update" value="Update Event" style="padding:15px;width:140px;background-color:#0071C5;">
+	<td colspan="2">
+	<?php 
+	echo "<div id='contentWrapper'>";
+	?>
+	<input type="hidden" name="custom_content_piece2" id="custom_content_piece2" value="0" />
+	<?php
+	echo "</div>";
+	echo "<script>";
+	echo "jQuery(function(){";
+	echo "jQuery('#addnewContent').click(function(){";
+	    echo "var count = +$('#custom_content_piece2').val()+1;";
+		echo "var container = '<div style=\'width:100%; padding:10px; margin:10px 0px; background; #f1f1f1; border:1px solid #ccc; float:left;\'>'; ";
+			echo "container += '<h3>Content Addition</h3>'; ";
+			echo "container += '<div style=\'width:50%; padding:5px; float:left;\'>';";
+			echo "container += '<label><b>Tactic Name:</b></label> <input type=\'text\' value=\'\' name=\'tactic_up[]\' style=\'padding:8px;border-color:#C0C0C0;width:80%;\'/>';";
+			echo "container += '</div>';";
+			echo "container += '<div style=\'width:50%; padding:5px; float:left;\'>';";
+			echo "container += '<label><b>Publish Date:</b></label> <input type=\'text\' value=\'\' class=\'publish\' name=\'publish_up[]\' style=\'padding:8px;border-color:#C0C0C0;width:80%;\'/>';";
+			echo "container += '</div>';";
+			
+			echo "container += '<div style=\'width:100%; padding:5px; float:left;\'>';";
+					echo "container += '<label><b>Channel:</b></label><br/>';";
+					echo "container += '<input type=\'radio\' value=\'Circuit_HR_Page\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Circuit HR Page &nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Circuit_News\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Circuit News &nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Circuit_Microsite\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Circuit Microsite &nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Wordpress_Microsite\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' /> Wordpress Microsite &nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Ask_Vote_Answer\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' /> Ask Vote Answer &nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Double_Dutch\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Double Dutch &nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Physical_Poster\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' /> Physical Poster<br/>';";
+					echo "container += '<input type=\'radio\' value=\'Digital_Sign\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Digital Sign &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Email\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Inside_Blue\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' /> Inside Blue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Meetup\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Meetup &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'My_Intel_App\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  My Intel App &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Intel_Newsroom\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Intel Newsroom &nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Sharepoint\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Sharepoint <br/>';";
+					echo "container += '<input type=\'radio\' value=\'Webcast\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Webcast &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Enterprise_Wiki\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Enterprise Wiki';";
+					echo "container += '<input type=\'radio\' value=\'Twitter\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Twitter &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Linkedin\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Linkedin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Facebook\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Facebook &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Instagram\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Instagram &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
+					echo "container += '<input type=\'radio\' value=\'Others\' name=\'txtup";
+					echo "_'+count+'[]";
+					echo "\' />  Others';";
+			
+			echo "container += '</div>';";
+			echo "container += '<div style=\'width:33%; padding:5px; float:left;\'>';";
+			echo "container += '<label><b>Call To Action:</b></label><input type=\'text\' value=\'\' name=\'cta_up[]\' style=\'padding:8px;border-color:#C0C0C0;width:90%\'/>';";
+			echo "container += '</div>';";
+			echo "container += '<div style=\'width:33%; padding:5px; float:left;\'>';";
+			echo "container += '<label><b>Destination URL:</b></label><input type=\'text\' value=\'\' name=\'url_up[]\' style=\'padding:8px;border-color:#C0C0C0;width:90%\'/>';";
+			echo "container += '</div>';";
+			echo "container += '<div style=\'width:33%; padding:5px; float:left;\'>';";
+			echo "container += '<label><b>Attachment:</b></label><input type=\'file\' value=\'\' name=\'attachment_up[]\' style=\'padding:8px;border-color:#C0C0C0;width:90%\'/>';";
+			echo "container += '</div>';";
+			
+		    echo "container +=	'</div>'; ";
+		 
+		 echo "jQuery('#contentWrapper').append(container)";
+		 echo "})";
+	     echo "});";
+	echo "</script>";	
+	?>
+	<script>
+	$('body').on('focus',".publish", function(){
+	$(this).datepicker();
+	});
+	
+	$(document).ready(function(){
+	$('#addnewContent').click( function() {
+            var counter = $('#custom_content_piece2').val();
+			//alert(counter);
+            counter++ ;
+            $('#custom_content_piece2').val(counter);
+			var count = $('#custom_content_piece2').val();
+			//alert(count);
+    });
+	});
+	</script>
+	<?php
+	echo "<br/>";echo "<br/>";
+	echo "<div style='float:left; width:100%; margin:20px 0px;'>";
+	echo "<div  id='addnewContent' style='
+		float:right;
+	    background: #0071C5;
+		border: 0;
+		border-radius: 2px;
+		color: #fff;
+		font-family: Montserrat, \"Helvetica Neue\", sans-serif;
+		font-weight: 100;
+		line-height: 0.5;
+		padding: 0.84375em 0.875em 0.78125em;
+		text-transform: uppercase;
+		text-align:center;
+		width:340px;
+		cursor:pointer;
+	'> + Add Another Content Piece</div>";
+	echo "</div>";
+	
+	?></td></tr>
+	<tr>
+	<td>
+	<input type="hidden" name="event_update_id" value="<?php echo $_GET['id'] ?>"> 
+	<!-- add new tactics in update end-->
+	<input type="submit" name="update" value="Update Event" style="padding:15px;width:140px;background-color:#0071C5;">
 	<input type="button" name="cancel" value="Cancel" style="padding:15px;width:140px;background-color:#0071C5;" onclick="window.location.href='manage-campaign?action=view&id=<?php echo $_GET['id'] ?>';"></td>
-	</tr>
+	</td></tr>
 	</table>	
 	</form>    
 
-
+    
 		
 <?php	}
 
@@ -2551,29 +2783,29 @@ function func_content(){
 				echo "<input type='hidden' name='custom_content_piece' id='custom_content_piece' value='1' />";
 				echo "<h3>Content Addition</h3>";
 				echo "<div style='width:50%; padding:5px; float:left;'>";
-						echo "<label><b>Tactic Name:</b></label> <input type='text' value='' name='tactic[]' style='padding:8px;border-color:#C0C0C0;width:80%'/>";
+						echo "<label><b>Tactic Name:</b></label> <input type='text' value='' id='t1' name='tactic[]' style='padding:8px;border-color:#C0C0C0;width:80%'/>";
 				echo "</div>";
 				echo "<div style='width:50%; padding:5px; float:left;'>";
-						echo "<label><b>Publish Date:</b></label> <input type='text' value='' id='publish' name='publish[]' style='width:80%;padding:8px;border-color:#C0C0C0;'/>";
+						echo "<label><b>Publish Date:</b></label> <input type='text' value='' id='publish'  name='publish[]' style='width:80%;padding:8px;border-color:#C0C0C0;'/>";
 				echo "</div>";
 				echo "<div style='width:100%; padding:5px; float:left;'>";
 						echo "<label><b>Channel:</b></label><br/>
-						<input type='radio' value='Circuit HR Page' name='txt_1[]'/> Circuit HR Page &nbsp;&nbsp;
-						<input type='radio' value='Circuit News' name='txt_1[]'/> Circuit News &nbsp;&nbsp;
-						<input type='radio' value='Circuit Microsite' name='txt_1[]'/> Circuit Microsite &nbsp;&nbsp;
-						<input type='radio' value='Wordpress Microsite' name='txt_1[]'/> Wordpress Microsite &nbsp;&nbsp;
-						<input type='radio' value='Ask Vote Answer' name='txt_1[]'/> Ask Vote Answer &nbsp;&nbsp;
-						<input type='radio' value='Double Dutch' name='txt_1[]'/> Double Dutch &nbsp;&nbsp;&nbsp;&nbsp;
-						<input type='radio' value='Physical Poster' name='txt_1[]'/> Physical Poster <br/>
-						<input type='radio' value='Digital Sign' name='txt_1[]'/> Digital Sign &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type='radio' value='Circuit_HR_Page' name='txt_1[]'/> Circuit HR Page &nbsp;&nbsp;
+						<input type='radio' value='Circuit_News' name='txt_1[]'/> Circuit News &nbsp;&nbsp;
+						<input type='radio' value='Circuit_Microsite' name='txt_1[]'/> Circuit Microsite &nbsp;&nbsp;
+						<input type='radio' value='Wordpress_Microsite' name='txt_1[]'/> Wordpress Microsite &nbsp;&nbsp;
+						<input type='radio' value='Ask_Vote_Answer' name='txt_1[]'/> Ask Vote Answer &nbsp;&nbsp;
+						<input type='radio' value='Double_Dutch' name='txt_1[]'/> Double Dutch &nbsp;&nbsp;&nbsp;&nbsp;
+						<input type='radio' value='Physical_Poster' name='txt_1[]'/> Physical Poster <br/>
+						<input type='radio' value='Digital_Sign' name='txt_1[]'/> Digital Sign &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type='radio' value='Email' name='txt_1[]'/> Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type='radio' value='Inside Blue' name='txt_1[]'/> Inside Blue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type='radio' value='Inside_Blue' name='txt_1[]'/> Inside Blue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type='radio' value='Meetup' name='txt_1[]'/> Meetup &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type='radio' value='My Intel App' name='txt_1[]'/> My Intel App &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type='radio' value='Intel Newsroom' name='txt_1[]'/> Intel Newsroom &nbsp;
+						<input type='radio' value='My_Intel_App' name='txt_1[]'/> My Intel App &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type='radio' value='Intel_Newsroom' name='txt_1[]'/> Intel Newsroom &nbsp;
 						<input type='radio' value='Sharepoint' name='txt_1[]'/> Sharepoint <br/>
 						<input type='radio' value='Webcast' name='txt_1[]'/> Webcast &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type='radio' value='Enterprise Wiki' name='txt_1[]'/> Enterprise Wiki
+						<input type='radio' value='Enterprise_Wiki' name='txt_1[]'/> Enterprise Wiki
 						<input type='radio' value='Twitter' name='txt_1[]'/> Twitter &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type='radio' value='Linkedin' name='txt_1[]'/> Linkedin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type='radio' value='Facebook' name='txt_1[]'/>  Facebook &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2611,43 +2843,43 @@ function func_content(){
 			
 			echo "container += '<div style=\'width:100%; padding:5px; float:left;\'>';";
 					echo "container += '<label><b>Channel:</b></label><br/>';";
-					echo "container += '<input type=\'radio\' value=\'Circuit HR Page\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Circuit_HR_Page\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Circuit HR Page &nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Circuit News\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Circuit_News\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Circuit News &nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Circuit Microsite\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Circuit_Microsite\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Circuit Microsite &nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Wordpress Microsite\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Wordpress_Microsite\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' /> Wordpress Microsite &nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Ask Vote Answer\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Ask_Vote_Answer\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' /> Ask Vote Answer &nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Double Dutch\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Double_Dutch\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Double Dutch &nbsp;&nbsp;&nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Physical Poster\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Physical_Poster\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' /> Physical Poster<br/>';";
-					echo "container += '<input type=\'radio\' value=\'Digital Sign\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Digital_Sign\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Digital Sign &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
 					echo "container += '<input type=\'radio\' value=\'Email\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Inside Blue\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Inside_Blue\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' /> Inside Blue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
 					echo "container += '<input type=\'radio\' value=\'Meetup\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Meetup &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'My Intel App\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'My_Intel_App\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  My Intel App &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Intel Newsroom\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Intel_Newsroom\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Intel Newsroom &nbsp;';";
 					echo "container += '<input type=\'radio\' value=\'Sharepoint\' name=\'txt";
@@ -2656,7 +2888,7 @@ function func_content(){
 					echo "container += '<input type=\'radio\' value=\'Webcast\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Webcast &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
-					echo "container += '<input type=\'radio\' value=\'Enterprise Wiki\' name=\'txt";
+					echo "container += '<input type=\'radio\' value=\'Enterprise_Wiki\' name=\'txt";
 					echo "_'+count+'[]";
 					echo "\' />  Enterprise Wiki';";
 					echo "container += '<input type=\'radio\' value=\'Twitter\' name=\'txt";

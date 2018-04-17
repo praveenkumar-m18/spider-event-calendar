@@ -910,7 +910,7 @@ function style($title, $color,$ev_height){
 	$event='<div id="cal_event"  style="padding-left: 5px; background-color: '.hex_to_rgb($color,'0.5').' !important;"><p class="ev_name">'.$ev_title.'</p></div>';
 	return $event;
 }
-$number_of_shown_evetns = 5;
+$number_of_shown_evetns = 50;
 function evented_days($r, $number_of_shown_evetns, $ev_id, $i,$evented_color_bg,$events_count){
 	if($r < $number_of_shown_evetns && $r < $events_count){ $ev_colid = $r; }
 	else $ev_colid = $r - 1;
@@ -1458,7 +1458,7 @@ if($cat_ids=='')
 
 <?php	
 //commented by praveen start 
-if($show_cat){ 
+/*if($show_cat){ 
 echo '<ul id="cats" style="list-style-type:none; padding: 0;">';
 
 foreach($categories as $category)
@@ -1496,7 +1496,7 @@ if (!empty($categories)) {
 <?php
 }
  echo '</ul>';
-}	
+}*/	
 //commented by praveen end
 ?>
 

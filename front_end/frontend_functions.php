@@ -105,10 +105,13 @@ $cat_ids = substr($cat_ids, 0,-1);
 			$query = $wpdb->prepare ("SELECT " . $wpdb->prefix . "spidercalendar_event.*," . $wpdb->prefix . "spidercalendar_event_category.color  from " . $wpdb->prefix . "spidercalendar_event JOIN " . $wpdb->prefix . "spidercalendar_event_category ON " . $wpdb->prefix . "spidercalendar_event.category = " . $wpdb->prefix . "spidercalendar_event_category.id where " . $wpdb->prefix . "spidercalendar_event_category.published=1 and " . $wpdb->prefix . "spidercalendar_event.category IN (".$cat_ids.") and " . $wpdb->prefix . "spidercalendar_event.published=1 and ( ( (date<=%s or date like %s) and  (date_end>=%s ) or date_end='0000-00-00'  ) or ( date_end is Null and date like %s ) ) and calendar=%d", substr( $date,0,7).'-01',substr( $date,0,7)."%",substr( $date,0,7).'-01',substr( $date,0,7)."%",$calendar);
 			}
    else{ 
-			$query = $wpdb->prepare("SELECT * from " . $wpdb->prefix . "spidercalendar_event where published=1 and ( ( (date<=%s or date like %s) and  date_end>=%s) or ( date_end is Null and date like %s ) ) and calendar=%d   ", "" . substr($date, 0, 7) . "-01", "" . substr($date, 0, 7) . "%", "" . substr($date, 0, 7) . "-01", "" . substr($date, 0, 7) . "%", $calendar);
+			//$query = $wpdb->prepare("SELECT * from " . $wpdb->prefix . "spidercalendar_event where published=1 and ( ( (date<=%s or date like %s) and  date_end>=%s) or ( date_end is Null and date like %s ) ) and calendar=%d   ", "" . substr($date, 0, 7) . "-01", "" . substr($date, 0, 7) . "%", "" . substr($date, 0, 7) . "-01", "" . substr($date, 0, 7) . "%", $calendar);
+			$query = $wpdb->prepare("SELECT event_id as id,tactic_name as title,date,date_end,content_channel,content_attachment as attachment,
+			time,text_for_date,userID,repeat_method,`repeat`,week,month,month_type,monthly_list,month_week,`year_month`,publish
+			from " . $wpdb->prefix . "spidercalendar_custom_content_piece WHERE publish = 1", $calendar);
 			
 			}
-  $rows = $wpdb->get_results($query." ".$order_by);
+  $rows = $wpdb->get_results($query);
  
   
   
@@ -299,7 +302,7 @@ $cat_ids = substr($cat_ids, 0,-1);
     }
     $used = array();
 	//custom code block start
-	$base = $__FILE__.'wp-content/plugins/spider-event-calendar/attachments';
+	$base = $__FILE__.'wp-content/plugins/spider-event-calendar/attachments/content_images';
 	
 	
     foreach ($date_days as $date_day) {
@@ -322,7 +325,7 @@ $cat_ids = substr($cat_ids, 0,-1);
           $c = $title_num[$date_day];
          // $list = '<p>' . (($show_numbers_for_events and $day_start) ? '' . (($show_numbers_for_events) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '') : '');
 		   //$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-		  $list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+		  $list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
 		 
           if ($rows[$i - 1]->time and $show_time != 0) {
             //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
@@ -346,8 +349,8 @@ $cat_ids = substr($cat_ids, 0,-1);
           //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 		  //$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
 		 
-		  $list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
-		  
+		  //$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+		  $list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
           if ($rows[$i - 1]->time and $show_time != 0) {
             //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			$list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -376,7 +379,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = $title_num[$j];
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+            $list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
             if ($rows[$i - 1]->time and $show_time != 0) {
              // $list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			 $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -397,7 +401,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = 1;
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			  $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -426,7 +431,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = $title_num[$j];
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			  $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -447,7 +453,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = 1;
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			  $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -476,7 +483,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = $title_num[$j];
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			   $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -497,7 +505,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = 1;
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			   $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -525,7 +534,8 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = $title_num[$j];
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->content_channel.'.png>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			   $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';
@@ -546,7 +556,7 @@ $cat_ids = substr($cat_ids, 0,-1);
             $c = 1;
             //$list = '<p>' . (($show_numbers_for_events and $day_start) ? '<b>' . $c . '.</b>&nbsp;&nbsp;' : '');
 			//$list = '<p><img src="wp-content/plugins/spider-event-calendar/front_end/images/twitter.png" alt="image"/>';
-			$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
+			//$list = '<p><img height="16" width="16" src='.$base.'/'.$rows[$i - 1]->attachment.'>';
             if ($rows[$i - 1]->time and $show_time != 0) {
               //$list .= '&nbsp;' . $rows[$i - 1]->title . '<br>(' . $rows[$i - 1]->time . ')</p>';
 			   $list .= '&nbsp;' . mb_strimwidth($rows[$i - 1]->title,0, 18, "...") .'</p>';

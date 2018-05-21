@@ -1781,7 +1781,7 @@ function func_content(){
 			}
 			if($query_upload)
 			{
-			echo "Successfully Inserted Along With Import!!!";
+			echo "<span style='color:green'>Successfully Inserted Along With Import!!!</span>";
 			}
 			else
 			{
@@ -1824,11 +1824,15 @@ function func_content(){
 			$query2 = $wpdb->query($sql2);
 				if($query2)
 				{
-				echo "Successfully Inserted With Content Piece!!!";
+					if($i == 0){
+					echo "<span style='color:green'>Campaign saved successfully!!!</span>";
+					}
 				}
 				else
 				{
+					if($i == 0){
 				echo "Failed to insert Data With Content Piece";
+					}
 				}
 		  }
 	    }

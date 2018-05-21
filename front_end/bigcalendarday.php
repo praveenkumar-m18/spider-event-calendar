@@ -862,6 +862,9 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
   $array_days1 = $all_calendar_files[0]['array_days1'];
   $title = $all_calendar_files[0]['title'];
   $ev_ids = $all_calendar_files[0]['ev_ids'];
+  //edited
+  $repeat = $all_calendar_files[0]['repeat'];
+  $year_month = $all_calendar_files[0]['year_month'];
   sort($array_days, SORT_NUMERIC);
   if (!$array_days || !in_array((int) $day, $array_days)) {
     $week_day = date('D', mktime(0, 0, 0, Month_num($month), (int) $day , $year));
@@ -886,14 +889,7 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
   }
   if (in_array((int) $day, $array_days)) {
     $week_day = date('D', mktime(0, 0, 0, Month_num($month), (int) $day , $year));
-    echo '<table style="border-spacing:0;width:100%;border-bottom:1px solid ' . $cell_border_color . '">
-            <tr>
-              <td style="height:' . $date_height . 'px;font-size:' . $date_font_size . 'px; padding-left:10px;background-color:' . $date_bg_color . ' !important; color:#6E7276">
-                <span style="padding-left:10px; font-size:' . $date_font_size . 'px;color:' . $week_font_color . '">' . week_convert($week_day) . '</span>
-                <span style="font-size:' . $day_month_font_size . 'px;color:' . $day_month_font_color . '">(' . __($month,'sp_calendar') . ' ' . (int) $day . ', ' . $year . ')</span>
-              </td>
-            <tr>
-              <td>';
+	$a=1;
     foreach ($title as $key => $value) {
       if ($key == (int) $day) {
         $ev_id = explode('<br>', $ev_ids[$key]);
@@ -902,7 +898,23 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
         $ev_title = explode('</p>', $value);
         array_pop($ev_title);
         for ($j = 0; $j < count($ev_title); $j++) {
-		
+		//edited
+		global $wpdb;
+		$row = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event where id='$ev_ids[$key]'");
+		$d = $row[0]->date;
+		list($c_year,$c_month,$dy) = explode('-',$d);
+		$custom_date = (int)($c_year . $c_month);
+		if($repeat == 1 && $custom_date != $year_month ){
+			if($a == 1 && $j ==0){
+			echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . ' !important">
+            <tr>
+              <td style="padding-left:10px; font-size:22px;font-weight:bold;width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . '"></td>
+              <td><p style="color:' . $event_title_color . '; border:none">&nbsp;' . __('There are no events for this month', 'sp_calendar') . '</p></td>
+            </tr>
+          </table>';
+			}
+		}
+		else{
 		
 		$query =$wpdb->prepare ( "SELECT " . $wpdb->prefix . "spidercalendar_event_category.color AS color FROM " . $wpdb->prefix . "spidercalendar_event  JOIN " . $wpdb->prefix . "spidercalendar_event_category
 	       ON " . $wpdb->prefix . "spidercalendar_event.category=" . $wpdb->prefix . "spidercalendar_event_category.id WHERE " . $wpdb->prefix . "spidercalendar_event.calendar=%d AND 
@@ -921,7 +933,16 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
             $table_color = $event_bg_color1;
           }
 		  
-          echo '<table style="margin: 0;border-spacing:0;height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $table_color . ' !important;" class="day_ev">
+          echo '
+		   <table style="border-spacing:0;width:100%;border-bottom:1px solid ' . $cell_border_color . '">
+            <tr>
+              <td style="height:' . $date_height . 'px;font-size:' . $date_font_size . 'px; padding-left:10px;background-color:' . $date_bg_color . ' !important; color:#6E7276">
+                <span style="padding-left:10px; font-size:' . $date_font_size . 'px;color:' . $week_font_color . '">' . week_convert($week_day) . '</span>
+                <span style="font-size:' . $day_month_font_size . 'px;color:' . $day_month_font_color . '">(' . __($month,'sp_calendar') . ' ' . (int) $day . ', ' . $year . ')</span>
+              </td>
+            <tr>
+              <td>
+		  <table style="margin: 0;border-spacing:0;height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $table_color . ' !important;" class="day_ev">
                   <tr>
                     <td style="font-size:' . $event_num_font_size . 'px;font-weight:bold;width:15px;text-align:center;background-color: #' . str_replace('#','',$cat_color->color) . ' !important;color:' . $event_num_color . '">' . (($show_numbers_for_events) ? ($j + 1) : '') . '</td>
                     <td>
@@ -944,7 +965,9 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
                   </tr>
                 </table>';
         }
+        }
       }
+	  $a = 2;
     }
     echo '</td></tr></table>';
 	}

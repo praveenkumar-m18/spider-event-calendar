@@ -865,7 +865,9 @@ echo '<style>
   $array_days1 = $all_calendar_files[0]['array_days1'];
   $title = $all_calendar_files[0]['title'];
   $ev_ids = $all_calendar_files[0]['ev_ids'];
-  
+  //edited
+  $repeat = $all_calendar_files[0]['repeat'];
+  $year_month = $all_calendar_files[0]['year_month'];
   $categories=$wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event_category WHERE published=1"); 
   $calendar = (isset($_GET['calendar']) ? (int)$_GET['calendar'] : '');
   
@@ -901,13 +903,24 @@ echo '<style>
 }
 
 
-function style($title, $color,$ev_height){
+function style($title, $color,$ev_height,$ev_ids,$repeat,$year_month){
 	$new_title = html_entity_decode(strip_tags($title));
 	$number = $new_title[0];
 	$first_letter =$new_title[1];
 	$ev_title =  $title;
 	$color=str_replace('#','',$color);
-	$event='<div id="cal_event"  style="padding-left: 5px; background-color: '.hex_to_rgb($color,'0.5').' !important;"><p class="ev_name">'.$ev_title.'</p></div>';
+	//edited
+	global $wpdb;
+	$row = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event where id='$ev_ids' ");
+	$d = $row[0]->date;
+	list($c_year,$c_month,$dy) = explode('-',$d);
+	$custom_date = (int)($c_year . $c_month);
+	if($repeat == 1 && $custom_date != $year_month ){
+		$event= "";
+	}
+	else{
+		$event='<div id="cal_event"  style="padding-left: 5px; background-color: '.hex_to_rgb($color,'0.5').' !important;"><p class="ev_name">'.$ev_title.'</p></div>';
+	}
 	return $event;
 }
 $number_of_shown_evetns = 50;
@@ -1013,7 +1026,7 @@ if (!empty($categories)) {
                               'tbWidth' => $popup_width,
                               'tbHeight' => $popup_height,
 							  'cat_id' => $cat_ids
-                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height) . '</b>
+                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
                           </a>';
           }
           else {
@@ -1077,7 +1090,7 @@ if (!empty($categories)) {
                               'TB_iframe' => 1,
                               'tbWidth' => $popup_width,
                               'tbHeight' => $popup_height,
-                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height) . '</b>
+                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
                           </a>';
             }
             else {
@@ -1142,7 +1155,7 @@ if (!empty($categories)) {
                               'TB_iframe' => 1,
                               'tbWidth' => $popup_width,
                               'tbHeight' => $popup_height,
-                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height) . '</b>
+                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
                           </a>';
           }
           else {
@@ -1208,7 +1221,7 @@ if (!empty($categories)) {
                                 'TB_iframe' => 1,
                                 'tbWidth' => $popup_width,
                                 'tbHeight' => $popup_height,
-                                ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height) . '</b>
+                                ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
                             </a>';
           }
           else {
@@ -1271,7 +1284,7 @@ if (!empty($categories)) {
                               'tbWidth' => $popup_width,
                               'tbHeight' => $popup_height,
                               'tbHeight' => $popup_height,
-                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height) . '</b>
+                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
                           </a>';
               }
               else {
@@ -1338,7 +1351,7 @@ if (in_array($i, $array_days)) {
                               'TB_iframe' => 1,
                               'tbWidth' => $popup_width,
                               'tbHeight' => $popup_height,
-                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height) . '</b>
+                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
                           </a>';
             }
             else {

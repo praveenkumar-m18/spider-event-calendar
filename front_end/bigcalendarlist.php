@@ -821,6 +821,9 @@ position: relative;
   $array_days1 = $all_calendar_files[0]['array_days1'];
   $title = $all_calendar_files[0]['title'];
   $ev_ids = $all_calendar_files[0]['ev_ids'];
+  //edited
+  $repeat = $all_calendar_files[0]['repeat'];
+  $year_month = $all_calendar_files[0]['year_month'];
   sort($array_days, SORT_NUMERIC);
   if (!$array_days) {
     echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . ' !important">
@@ -833,15 +836,7 @@ position: relative;
   for ($i = 0; $i < count($array_days); $i++) {
     $week_day = date('D', mktime(0, 0, 0, Month_num($month), $array_days[$i], $year));
 	if($array_days[$i]<=$month_days){
-    echo '<table style="width:100%;border-spacing:0;">
-            <tr>
-              <td style="height:' . $date_height . 'px;font-size:' . $date_font_size . 'px; padding-left:10px;background-color:' . $date_bg_color . ' !important; color:#6E7276">
-                <span style="padding-left:10px; font-size:' . $date_font_size . 'px;color:' . $week_font_color . '">' . week_convert($week_day) . '</span>
-                <span style="font-size:' . $day_month_font_size . 'px;color:' . $day_month_font_color . '">(' . add_0($array_days[$i]) . ' ' . __($month,'sp_calendar') . ')</span>
-              </td>
-            </tr>
-            <tr>
-              <td>';
+	$a = 1;
     foreach ($title as $key => $value) {
       if ($key == $array_days[$i]) {
         $ev_id = explode('<br>', $ev_ids[$key]);
@@ -850,6 +845,24 @@ position: relative;
         $ev_title = explode('</p>', $value);
         array_pop($ev_title);
         for ($j = 0; $j < count($ev_title); $j++) {
+		//edited
+		global $wpdb;
+		$row = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event where id='$ev_ids[$key]'");
+		$d = $row[0]->date;
+		$c_c = count($ev_title);
+		list($c_year,$c_month,$dy) = explode('-',$d);
+		$custom_date = (int)($c_year . $c_month);
+		if($repeat == 1 && $custom_date != $year_month ){
+			if($a == 1 && $j ==0){
+			echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . ' !important">
+            <tr>
+              <td style="padding-left:10px; font-size:22px;font-weight:bold;width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . '"></td>
+              <td><p style="color:' . $event_title_color . '; border:none">&nbsp;' . __('There are no events for this month', 'sp_calendar') . '</p></td>
+            </tr>
+          </table>';
+			} 
+		}
+		else{
 		 $queryy = $wpdb->prepare ("SELECT " . $wpdb->prefix . "spidercalendar_event_category.color AS color FROM " . $wpdb->prefix . "spidercalendar_event  JOIN " . $wpdb->prefix . "spidercalendar_event_category
 	       ON " . $wpdb->prefix . "spidercalendar_event.category=" . $wpdb->prefix . "spidercalendar_event_category.id WHERE " . $wpdb->prefix . "spidercalendar_event.calendar=%d AND 
 	       " . $wpdb->prefix . "spidercalendar_event.published='1' AND " . $wpdb->prefix . "spidercalendar_event_category.published='1' AND " . $wpdb->prefix . "spidercalendar_event.id=%d",$calendar,$ev_id[$j]);
@@ -865,7 +878,16 @@ position: relative;
             $table_color = $event_bg_color1;
           }
 		  if(!isset($cat_color->color)) { $cat_color = new stdClass; $cat_color->color=$bg_top;};
-          echo '<table class="last_table" style="overflow:hidden;height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $table_color . ' !important;">
+          echo '<table style="width:100%;border-spacing:0;">
+            <tr>
+              <td style="height:' . $date_height . 'px;font-size:' . $date_font_size . 'px; padding-left:10px;background-color:' . $date_bg_color . ' !important; color:#6E7276">
+                <span style="padding-left:10px; font-size:' . $date_font_size . 'px;color:' . $week_font_color . '">' . week_convert($week_day) . '</span>
+                <span style="font-size:' . $day_month_font_size . 'px;color:' . $day_month_font_color . '">(' . add_0($array_days[$i]) . ' ' . __($month,'sp_calendar') . ')</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+		  <table class="last_table" style="overflow:hidden;height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $table_color . ' !important;">
                   <tr>
                     <td style="font-size:' . $event_num_font_size . 'px;font-weight:bold;width:15px;text-align:center;background-color: #' . str_replace('#','',$cat_color->color) . ' !important;color:' . $event_num_color . '">' . (($show_numbers_for_events) ? ($j + 1) : '') . '</td>
                     <td>
@@ -888,7 +910,9 @@ position: relative;
                   </tr>
                 </table>';
         }
+        }
       }
+	  $a =2;
     }
     echo '</td></tr></table>';
 	}

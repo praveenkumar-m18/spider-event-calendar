@@ -582,6 +582,9 @@ $cat_ids = substr($cat_ids, 0,-1);
   $all_calendar_files['array_days1'] = $array_days1;
   $all_calendar_files['calendar'] = $calendar;
   $all_calendar_files['ev_ids'] = $ev_ids;
+  //edited
+  $all_calendar_files['repeat'] = $repeat;
+  $all_calendar_files['year_month'] = $year_month;
   return array($all_calendar_files);
 }
 

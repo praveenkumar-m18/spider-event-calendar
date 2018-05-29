@@ -903,24 +903,13 @@ echo '<style>
 }
 
 
-function style($title, $color,$ev_height,$ev_ids,$repeat,$year_month){
+function style($title, $color,$ev_height,$ev_ids,$repeat,$year_month,$style_date){
 	$new_title = html_entity_decode(strip_tags($title));
 	$number = $new_title[0];
 	$first_letter =$new_title[1];
 	$ev_title =  $title;
 	$color=str_replace('#','',$color);
-	//edited
-	global $wpdb;
-	$row = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event where id='$ev_ids' ");
-	$d = $row[0]->date;
-	list($c_year,$c_month,$dy) = explode('-',$d);
-	$custom_date = (int)($c_year . $c_month);
-	if($repeat == 1 && $custom_date != $year_month ){
-		$event= "";
-	}
-	else{
-		$event='<div id="cal_event"  style="padding-left: 5px; background-color: '.hex_to_rgb($color,'0.5').' !important;"><p class="ev_name">'.$ev_title.'</p></div>';
-	}
+	$event='<div id="cal_event"  style="padding-left: 5px; background-color: '.hex_to_rgb($color,'0.5').' !important;"><p class="ev_name">'.$ev_title.'</p></div>';
 	return $event;
 }
 $number_of_shown_evetns = 50;
@@ -981,7 +970,7 @@ if (!empty($categories)) {
  echo '</ul>';
 }*/
  /////////////////////////////////////////////////////////////////////////////
-  
+ // echo $month_days;
   for ($i = 1; $i <= $month_days; $i++) {
       if (isset($title[$i])) {
       $ev_title = explode('</p>', $title[$i]);
@@ -1012,6 +1001,7 @@ if (!empty($categories)) {
 		else $events_count = $k; 			
 		$event_height = ($cell_height - floor($other_days_font_size * 1.4))/$events_count;
           if ($r < $number_of_shown_evetns) {
+
             echo '        <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="background:none;color:' . $event_title_color . ';"
                             href="' . add_query_arg(array(
                               'action' => 'spidercalendarbig',
@@ -1030,6 +1020,7 @@ if (!empty($categories)) {
                           </a>';
           }
           else {
+			  
             echo '       
                           <div style=" min-height: '.$event_height.'px;"><a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="padding-left: 5px; font-size:11px; background:none; color:' . $ev_color . '; text-align:center;"
                             href="' . add_query_arg(array(
@@ -1077,6 +1068,7 @@ if (!empty($categories)) {
 		else $events_count = $k; 			
 		$event_height = ($cell_height - floor($other_days_font_size * 1.4))/$events_count;
             if ($r < $number_of_shown_evetns) {
+				
               echo '      <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="background:none;color:' . $event_title_color . ';"
                             href="' . add_query_arg(array(
                               'action' => 'spidercalendarbig',
@@ -1142,6 +1134,7 @@ if (!empty($categories)) {
 		$event_height = ($cell_height - floor($other_days_font_size * 1.4))/$events_count;
 
           if ($r < $number_of_shown_evetns) {
+			  
             echo '       <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="background:none; color:' . $event_title_color . ' !important;"
                             href="' . add_query_arg(array(
                               'action' => 'spidercalendarbig',
@@ -1208,6 +1201,7 @@ if (!empty($categories)) {
 		else $events_count = $k; 			
 		$event_height = ($cell_height - floor($other_days_font_size * 1.4))/$events_count;	
         if ($r < $number_of_shown_evetns) {
+			
           echo '            <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="background:none; color:' . $event_title_color . ' !important;"
                               href="' . add_query_arg(array(
                                 'action' => 'spidercalendarbig',
@@ -1270,6 +1264,7 @@ if (!empty($categories)) {
 			else $events_count = $k; 			
 			$event_height = ($cell_height - floor($other_days_font_size * 1.4))/$events_count;
               if ($r < $number_of_shown_evetns) {
+				  
                 echo '    <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="background:none; color:' . $event_title_color . ';"
                             href="' . add_query_arg(array(
                               'action' => 'spidercalendarbig',
@@ -1318,7 +1313,6 @@ if (!empty($categories)) {
           }
         }
         else
-		
 if (in_array($i, $array_days)) {
           echo '      <td class="cala_day" style="background-color:' . $ev_title_bg_color . ' !important;padding:0; margin:0;line-height:15px;" id="event_td_'.$i.'">
                         <p style="color:' . $evented_color . ' !important;font-size:' . $other_days_font_size . 'px; font-weight: 600;line-height:1.4; padding-left: 5px; font-family: Segoe UI;padding-left: 5px; background: '.$date_bgcolor.' !important;">' . $i . '</p>';
@@ -1338,6 +1332,25 @@ if (in_array($i, $array_days)) {
 			$event_height = ($cell_height - floor($other_days_font_size * 1.4))/$events_count;
 			
             if ($r < $number_of_shown_evetns) {
+				//edited
+				global $wpdb;
+				$rows = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where event_id='$ev_id[$j]' and day(date) ='$i' ");
+				$a = 0;
+				foreach($rows as $row){
+					
+					$d = $row->date;
+					$cnt_q = $wpdb->get_results("SELECT count(*) as cnt FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where event_id='$ev_id[$j]' and date ='$d' ");
+					$cnt = $cnt_q[0]->cnt;
+					list($c_year,$c_month,$dy) = explode('-',$d);
+					$custom_date = (int)($c_year . $c_month);
+					
+					if(($repeat == 1 && $custom_date != $year_month ) || ($a != 0 && $cnt > 1)){
+						$event= "";
+					}
+					else{
+						$event = style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month,$style_date);
+					}
+					//EDIT END
               echo '      <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '"  style="background:none; color:' . $event_title_color . ';"
                             href="' . add_query_arg(array(
                               'action' => 'spidercalendarbig',
@@ -1351,8 +1364,10 @@ if (in_array($i, $array_days)) {
                               'TB_iframe' => 1,
                               'tbWidth' => $popup_width,
                               'tbHeight' => $popup_height,
-                              ), $site_url) . '"><b>' . style($ev_title[$j],$cat_color,$event_height,$ev_id[$j],$repeat,$year_month) . '</b>
+                              ), $site_url) . '"><b>' . $event . '</b>
                           </a>';
+						  $a++;
+				}
             }
             else {
               echo '<div style="min-height: '.$event_height.'px;"><a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="padding-left: 5px; font-size:11px; background:none; color:' . $ev_color . ';text-align:center;"

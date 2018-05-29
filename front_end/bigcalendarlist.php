@@ -833,6 +833,7 @@ position: relative;
             </tr>
           </table>';
   }
+  
   for ($i = 0; $i < count($array_days); $i++) {
     $week_day = date('D', mktime(0, 0, 0, Month_num($month), $array_days[$i], $year));
 	if($array_days[$i]<=$month_days){
@@ -847,22 +848,42 @@ position: relative;
         for ($j = 0; $j < count($ev_title); $j++) {
 		//edited
 		global $wpdb;
-		$row = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event where id='$ev_ids[$key]'");
-		$d = $row[0]->date;
-		$c_c = count($ev_title);
-		list($c_year,$c_month,$dy) = explode('-',$d);
-		$custom_date = (int)($c_year . $c_month);
-		if($repeat == 1 && $custom_date != $year_month ){
-			if($a == 1 && $j ==0){
+		$month = substr($date, 5, 2);
+		$new_date = add_0($key);
+		$rows = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where event_id='$ev_ids[$key]' and date like '$year-$month-$new_date%'");
+		$b =1;
+		if(count($rows) == 0 && $a == 1 && $j ==0){
 			echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . ' !important">
             <tr>
               <td style="padding-left:10px; font-size:22px;font-weight:bold;width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . '"></td>
               <td><p style="color:' . $event_title_color . '; border:none">&nbsp;' . __('There are no events for this month', 'sp_calendar') . '</p></td>
             </tr>
           </table>';
-			} 
+		}
+		foreach($rows as $k =>$row){
+		$d = $row->date;
+		$c_c = count($ev_title);
+		list($c_year,$c_month,$dy) = explode('-',$d);
+		$custom_date = (int)($c_year . $c_month);
+		$year = substr($date, 0, 4);
+		
+		$d =$year."-".$month."-".add_0($array_days[$i]);
+		$cnt_query = $wpdb->get_results("SELECT count(*) as cnt FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where date like '$year-$month%'" );
+		$c = $cnt_query[0]->cnt;
+		
+		if($repeat == 1 && $custom_date != $year_month){
+			//echo "cuming";
+			if(($a == 1 && $j ==0 && $c==0 && $b == 1)){
+			echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . ' !important">
+            <tr>
+              <td style="padding-left:10px; font-size:22px;font-weight:bold;width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . '"></td>
+              <td><p style="color:' . $event_title_color . '; border:none">&nbsp;' . __('There are no events for this month', 'sp_calendar') . '</p></td>
+            </tr>
+          </table>';
+			}
 		}
 		else{
+			if($k == 0){
 		 $queryy = $wpdb->prepare ("SELECT " . $wpdb->prefix . "spidercalendar_event_category.color AS color FROM " . $wpdb->prefix . "spidercalendar_event  JOIN " . $wpdb->prefix . "spidercalendar_event_category
 	       ON " . $wpdb->prefix . "spidercalendar_event.category=" . $wpdb->prefix . "spidercalendar_event_category.id WHERE " . $wpdb->prefix . "spidercalendar_event.calendar=%d AND 
 	       " . $wpdb->prefix . "spidercalendar_event.published='1' AND " . $wpdb->prefix . "spidercalendar_event_category.published='1' AND " . $wpdb->prefix . "spidercalendar_event.id=%d",$calendar,$ev_id[$j]);
@@ -909,12 +930,17 @@ position: relative;
                     </td>
                   </tr>
                 </table>';
-        }
+			}
+		}
+			$b++;
+		}
         }
       }
 	  $a =2;
     }
+	
     echo '</td></tr></table>';
+	
 	}
   }
   ?>

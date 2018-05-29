@@ -569,6 +569,8 @@ $cat_ids = substr($cat_ids, 0,-1);
           }
         }
     }
+		
+	  
   }
   for ($i = 1; $i <= count($array_days) - 1; $i++) {
     if (isset($array_days[$i])) {
@@ -648,7 +650,9 @@ $cat_ids = substr($cat_ids, 0,-1);
 			$query = $wpdb->prepare ("SELECT " . $wpdb->prefix . "spidercalendar_event.*,	" . $wpdb->prefix . "spidercalendar_event_category.color  from " . $wpdb->prefix . "spidercalendar_event JOIN " . $wpdb->prefix . "spidercalendar_event_category ON " . $wpdb->prefix . "spidercalendar_event.category = " . $wpdb->prefix . "spidercalendar_event_category.id 	where " . $wpdb->prefix . "spidercalendar_event_category.published=1 and " . $wpdb->prefix . "spidercalendar_event.category IN (".$cat_ids.") and " . $wpdb->prefix . "spidercalendar_event.published=1 and ( ( (date<=%s	or date like %s) and  (date_end>=%s ) or date_end='0000-00-00'  ) or ( date_end is Null and date like %s ) ) and calendar=%d ",substr( $date,0,7).'-01',substr( $date,0,7)."%",	substr( $date,0,7).'-01',substr( $date,0,7)."%",$calendar);	
 			}
 	else{
-			 $query = $wpdb->prepare("SELECT * from " . $wpdb->prefix . "spidercalendar_event where published=1 and ((date_end>=%s) or (date_end=%s)) and calendar=%d", "" . substr($date, 0, 7) . "-01", "0000-00-00", $calendar);
+			 $query = $wpdb->prepare("SELECT event_id as id,tactic_name as title,date,date_end,content_channel,content_attachment as attachment,
+			time,text_for_date,userID,repeat_method,`repeat`,week,month,month_type,monthly_list,month_week,`year_month`,publish
+			from " . $wpdb->prefix . "spidercalendar_custom_content_piece WHERE publish = 1", $calendar);
   }
   $rows = $wpdb->get_results($query." ".$order_by);
   
@@ -661,6 +665,7 @@ $cat_ids = substr($cat_ids, 0,-1);
   $all_title = array();
   $all_ev_ids = array();
   $s = count($rows);
+  $year_month = (int)($year . $month);
   foreach ($months_array as $month) {
     $id_array = array();
     $array_days = array();
@@ -678,7 +683,7 @@ $cat_ids = substr($cat_ids, 0,-1);
       $date_end_day = (int)substr($d_end, 8, 2);
       $date_year_month = (int)(substr($rows[$i - 1]->date, 0, 4) . substr($rows[$i - 1]->date, 5, 2));
       $date_end_year_month = (int)(substr($d_end, 0, 4) . substr($d_end, 5, 2));
-      $year_month = (int)($year . $month);
+      
       $repeat = $rows[$i - 1]->repeat;
       if ($repeat == "") {
         $repeat = 1;
@@ -1078,6 +1083,9 @@ $cat_ids = substr($cat_ids, 0,-1);
   $all_calendar_files['all_title'] = $all_title;
   $all_calendar_files['all_ev_ids'] = $all_ev_ids;
   $all_calendar_files['all_calendar'] = $all_id_array;  
+  //edited
+  $all_calendar_files['repeat'] = $repeat;
+  $all_calendar_files['year_month'] = $year_month;
   return array($all_calendar_files);
 }
 

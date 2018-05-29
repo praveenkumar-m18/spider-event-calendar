@@ -862,7 +862,9 @@ position: relative;
   $all_array_days1 = $all_calendar_files[0]['all_array_days1'];
   $all_title = $all_calendar_files[0]['all_title'];
   $all_ev_ids = $all_calendar_files[0]['all_ev_ids'];
-
+  //edited
+  $repeat = $all_calendar_files[0]['repeat'];
+  $year_month = $all_calendar_files[0]['year_month'];
   $prev_month = substr($months, 0, 2);
   $this_month = substr($months, 3, 2);
   $next_month = substr($months, 6, 2);
@@ -919,44 +921,73 @@ position: relative;
           $ev_title = explode('</p>', $value);
           array_pop($ev_title);
           for ($j = 0; $j < count($ev_title); $j++) {
-		   $queryy =$wpdb->prepare ("SELECT " . $wpdb->prefix . "spidercalendar_event_category.color AS color FROM " . $wpdb->prefix . "spidercalendar_event  JOIN " . $wpdb->prefix . "spidercalendar_event_category
-	       ON " . $wpdb->prefix . "spidercalendar_event.category=" . $wpdb->prefix . "spidercalendar_event_category.id WHERE " . $wpdb->prefix . "spidercalendar_event.calendar=%d AND 
-	       " . $wpdb->prefix . "spidercalendar_event.published='1' AND " . $wpdb->prefix . "spidercalendar_event_category.published='1' AND " . $wpdb->prefix . "spidercalendar_event.id=%d",$calendar,$ev_id[$j]);
-		   
-		   $cat_color = $wpdb->get_row($queryy);
-		  
-            if (($j + 1) % 2 == 0) {
-              $color = $event_num_bg_color2;
-              $table_color = $event_bg_color2;
-            }
-            else {
-              $color = $event_num_bg_color1;
-              $table_color = $event_bg_color1;
-            }
-			if(!isset($cat_color->color)) { $cat_color = new stdClass; $cat_color->color=$bg_top;};
-            echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $table_color . ' !important"  class="week_list">
-                    <tr>
-                      <td class="week_ev" style="font-size:' . $event_num_font_size . 'px;font-weight:bold;width:15px;text-align:center;background-color: #' . str_replace('#','',$cat_color->color) . ' !important;color:' . $event_num_color . ' !important">' . (($show_numbers_for_events) ? ($j + 1) : '') . '</td>
-                      <td>
-                        <a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="text-decoration:none;font-size:15px;background:none;color:' . $event_title_color . ';"
-                          href="' . add_query_arg(array(
-                            'action' => 'spidercalendarbig',
-                            'theme_id' => $theme_id,
-                            'calendar_id' => $calendar_id,
-                            'ev_ids' => $ev_ids_inline,
-                            'eventID' => $ev_id[$j],
-                            'date' => $year . '-' . $month . '-' . (int) $day,
-                            'many_sp_calendar' => $many_sp_calendar,
-                            'widget' => $widget,
-                            'TB_iframe' => 1,
-                            'tbWidth' => $popup_width,
-                            'tbHeight' => $popup_height,
-                            ), $site_url) . '"><b>' . $ev_title[$j] . '</b>
-                        </a>
-                      </td>
-                    </tr>
-                  </table>';
-          }
+			//edited
+			global $wpdb;
+			$rows = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where event_id='$ev_ids[$key]' and day(date) ='$key'");
+			$b =1;
+			foreach($rows as $k =>$row){
+				$d = $row->date;
+				list($c_year,$c_month,$dy) = explode('-',$d);
+				$custom_date = (int)($c_year . $c_month);
+				$year = substr($date, 0, 4);
+				$month = substr($date, 5, 2);
+				$dt = substr($date, 8, 2);
+				$cnt_query = $wpdb->get_results("SELECT count(*) as cnt FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where date like '$year-$month-$dt%' ");
+				$c = $cnt_query[0]->cnt; 
+				if($repeat == 1 && $custom_date != $year_month ){
+					if($j ==0 && $c == 0 && $b == 1){
+						echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . '" class="week_list">
+						  <tr>
+							<td class="week_ev" style="font-size:22px; font-weight:bold; width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . ' !important"></td>
+							<td><p style="color:' . $event_title_color . '; border:none">&nbsp;' . __('There are no events on this date', 'sp_calendar') . '</p></td>
+						  </tr>
+						</table>';
+					}
+				}
+				else{
+					if($k == 0){
+				   $queryy =$wpdb->prepare ("SELECT " . $wpdb->prefix . "spidercalendar_event_category.color AS color FROM " . $wpdb->prefix . "spidercalendar_event  JOIN " . $wpdb->prefix . "spidercalendar_event_category
+				   ON " . $wpdb->prefix . "spidercalendar_event.category=" . $wpdb->prefix . "spidercalendar_event_category.id WHERE " . $wpdb->prefix . "spidercalendar_event.calendar=%d AND 
+				   " . $wpdb->prefix . "spidercalendar_event.published='1' AND " . $wpdb->prefix . "spidercalendar_event_category.published='1' AND " . $wpdb->prefix . "spidercalendar_event.id=%d",$calendar,$ev_id[$j]);
+				   
+				   $cat_color = $wpdb->get_row($queryy);
+				  
+					if (($j + 1) % 2 == 0) {
+					  $color = $event_num_bg_color2;
+					  $table_color = $event_bg_color2;
+					}
+					else {
+					  $color = $event_num_bg_color1;
+					  $table_color = $event_bg_color1;
+					}
+					if(!isset($cat_color->color)) { $cat_color = new stdClass; $cat_color->color=$bg_top;};
+					echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $table_color . ' !important"  class="week_list">
+							<tr>
+							  <td class="week_ev" style="font-size:' . $event_num_font_size . 'px;font-weight:bold;width:15px;text-align:center;background-color: #' . str_replace('#','',$cat_color->color) . ' !important;color:' . $event_num_color . ' !important">' . (($show_numbers_for_events) ? ($j + 1) : '') . '</td>
+							  <td>
+								<a class="thickbox-previewbigcalendar' . $many_sp_calendar . '" style="text-decoration:none;font-size:15px;background:none;color:' . $event_title_color . ';"
+								  href="' . add_query_arg(array(
+									'action' => 'spidercalendarbig',
+									'theme_id' => $theme_id,
+									'calendar_id' => $calendar_id,
+									'ev_ids' => $ev_ids_inline,
+									'eventID' => $ev_id[$j],
+									'date' => $year . '-' . $month . '-' . (int) $day,
+									'many_sp_calendar' => $many_sp_calendar,
+									'widget' => $widget,
+									'TB_iframe' => 1,
+									'tbWidth' => $popup_width,
+									'tbHeight' => $popup_height,
+									), $site_url) . '"><b>' . $ev_title[$j] . '</b>
+								</a>
+							  </td>
+							</tr>
+						  </table>';
+					}
+				}
+				$b++;
+			}
+		  }
         }
       }
     }

@@ -10,6 +10,8 @@ License: GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
 */
 error_reporting(0);
 $wd_spider_calendar_version="1.5.57";
+header('Content-disposition: inline');
+header('Content-type: application/msword');
 // LANGUAGE localization.
 function sp_calendar_language_load() {
   load_plugin_textdomain('sp_calendar', FALSE, basename(dirname(__FILE__)) . '/languages');
@@ -1665,10 +1667,10 @@ function func_content(){
 	 $camp_name = htmlentities($_POST['campaign_name']);
 	 $owner = htmlentities($_POST['owner']);
 	 $partner = htmlentities($_POST['partner']);
-	 $start = $_POST['start_date'];
+	$start = $_POST['start_date'];
 	 $start_date = date('Y-m-d', strtotime($start));
 	 $end = $_POST['end_date'];
-	 $end_date = date('Y-m-d', strtotime($end));
+	$end_date = date('Y-m-d', strtotime($end));
 	 $category = $_POST['category'];
 	 $product_summary = htmlentities($_POST['product_summary']);
 	 $product_channel = htmlentities($_POST['product_channel']);
@@ -1797,6 +1799,7 @@ function func_content(){
 		$content_count = $_POST['custom_content_piece'];
 		$tablename2=$wpdb->prefix.'spidercalendar_custom_content_piece';
 		for($i=0;$i<$content_count;$i++)
+			
 		{
 		if($tactic_name[$i] == '' && $publish[$i] == '' &&  $cont_channel == '' && $cta[$i] == '' && $url[$i] == '' && $file_attach_name[$i] == '')
 		{
@@ -1831,7 +1834,7 @@ function func_content(){
 				else
 				{
 					if($i == 0){
-				echo "Failed to insert Data With Content Piece";
+					echo "Failed to insert Data With Content Piece";
 					}
 				}
 		  }
@@ -1912,7 +1915,6 @@ function func_content(){
 		   proposition = '$bus_prposition',attachment = '$attach', audience = '$chk', current_state = '$audi_curr_state', 
 		   activation = '$audi_activation', key_message = '$key_messages', ideal_voice = '$ideal_voice', analytics = '$analytics',
 		   budget = '$budget', effort = '$effort',final_attachment = '$doc'	WHERE id = ".$ev_id;
-	  
 	        $query_update = $wpdb->query($sql_update);
 		 
 			$update_content_count = $_POST['update_content_count'];
@@ -1927,7 +1929,6 @@ function func_content(){
 				{
 					$attach_prev[$i] = $file_attach_name[$i];
 				}
-				
 				if($file_attach_name[$i]!="" && $file_attach_size[$i] <= 614400)
 				{ 
 				$upload_content = move_uploaded_file ($file_attach_path[$i],$base.'/attachments/content_piece/'.$file_attach_name[$i]);
@@ -1992,7 +1993,7 @@ function func_content(){
 				}
 				//add new tactics to update event end
 			
-			   if($query4 || $query_update)
+			   if($query4 || $query_update || $query21)
 				{ 
 			    ?>
 					<script>
@@ -2036,7 +2037,7 @@ function func_content(){
 		$budget = $row->budget;
 		$effort = $row->effort;
 		$attach = $row->attachment;
-		$final_attach = $row->final_attachment;
+		$final_attach = rtrim($row->final_attachment,",");
 		$final_doc = explode(',', $final_attach);
 		}
     
@@ -2276,19 +2277,27 @@ function func_content(){
 	<tr><td colspan="3" style="padding:5px;"><strong>Product Brief Summary:</strong><br/><span><?php echo $summary; ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Product Channel & Delivery Summary:</strong><br/>&nbsp;<span><?php echo $channel; ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Business Proposition:</strong><br/>&nbsp;<span><?php echo $proposition; ?></span></td></tr>
-	<tr><td colspan="3" style="padding:5px;"><strong>Audience:</strong><br/>&nbsp;<span><?php echo $audience; ?></span></td></tr>
+	<tr><td colspan="3" style="padding:5px;"><strong>Audience:</strong><br/>&nbsp;<span><?php echo rtrim($audience,','); ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Audience Curent State:</strong><br/>&nbsp;<span><?php echo $current_state; ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Audience Activation:</strong><br/>&nbsp;<span><?php echo $activation; ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Key Messages:</strong><br/>&nbsp;<span><?php echo $key_message; ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Ideal Voice:</strong><br/>&nbsp;<span><?php echo $ideal_voice; ?></span></td></tr>
 	<tr><td colspan="3" style="padding:5px;"><strong>Analytics:</strong><br/>&nbsp;<span><?php echo $analytics; ?></span></td></tr>
-	<tr><td colspan="3" style="padding:5px;"><strong>Final Document Repository:</strong><br/>&nbsp;<span><?php for($j=0;$j<count($final_doc);$j++) { ?> <a style="color:#0071C5;" href="../wp-content/plugins/spider-event-calendar/attachments/final_docs/<?php echo $final_doc[$j];?>"><?php echo $final_doc[$j]." | ";?></a><?php } ?></span></td></tr>
+	<tr><td colspan="3" style="padding:5px;"><strong>Attachment:</strong><br/>&nbsp;<span>
+	<a style="color:#0071C5;" href='../wp-content/plugins/spider-event-calendar/attachments/<?php echo $attach;?>' download><?php echo $attach; ?></span></td></tr>
+	<tr><td colspan="3" style="padding:5px;"><strong>Final Document Repository:</strong><br/>&nbsp;<span>
+	<?php
+	
+	for($j=0;$j<count($final_doc);$j++) { ?> 
+		<a style="color:#0071C5;" href="../wp-content/plugins/spider-event-calendar/attachments/final_docs/<?php echo $final_doc[$j];?>" download>
+		<?php echo $final_doc[$j]; ?></a>
+	<?php if(count($final_doc) == 1 || $j == count($final_doc)-1 || strlen($final_doc[$j]) == 0) { echo ""; } else{ echo " |";} } ?></span></td></tr>
 	<?php  if($rowcount != 0) { ?>
 	<tr style="background-color:#0071C5;color:#fff;"><td style="padding:5px;" colspan="3"><h3>Content Addition</h3></td></tr>
 	<?php for($i=0;$i<$rowcount;$i++) {?>
 	<tr style="background-color:#C0C0C0;color:#000;"><td colspan="3" style="padding:5px;"><strong>Content Piece - <?php echo $i + 1 ?></strong></td></tr>
 	<tr><td style="padding:5px;" colspan="2"><strong>Tactic Name:</strong>&nbsp;<span><?php echo $tactic[$i]; ?></span></td><td style="padding:5px;" colspan="1"><strong>Publish Date:</strong>&nbsp;<span><?php if($publish_date[$i] != '01/01/1970') { echo $publish_date[$i]; } ?></span></td></tr>
-	<tr><td style="padding:5px;"><strong>Channel:</strong>&nbsp;<span><?php echo $content_channel[$i]; ?></span></td><td style="padding:5px;"><strong>CTA:</strong>&nbsp;<span><?php echo $cta[$i]; ?></span></td><td style="padding:5px;"><strong>URL:</strong>&nbsp;<span><?php echo $url[$i]; ?></span></td></tr>
+	<tr><td style="padding:5px;"><strong>Channel:</strong>&nbsp;<span><?php if($content_channel[$i] == ""){echo "Others";} else{echo $content_channel[$i];} ?></span></td><td style="padding:5px;"><strong>CTA:</strong>&nbsp;<span><?php echo $cta[$i]; ?></span></td><td style="padding:5px;"><strong>URL:</strong>&nbsp;<span><?php echo $url[$i]; ?></span></td></tr><tr><td style="padding:5px;" colspan="3"><strong>Content Attachment:</strong>&nbsp;<span><a style="color:#0071C5;" href="../wp-content/plugins/spider-event-calendar/attachments/content_piece/<?php echo $content_attachment[$i];?>" download ><?php echo $content_attachment[$i]; ?></span></td></tr>
 	<?php } } ?>
 	</table>
 	
@@ -2351,7 +2360,7 @@ function func_content(){
 	<input type="hidden" name="prev_image" value="<?php echo $attach ?>">
 	
 	<tr>
-	<td colspan="2"><b>Final Document Repository:</b><input id='upload' name="upload[]" type="file" multiple="multiple" style="width:100%"/><span><?php for($i=0;$i<count($final_doc);$i++) { echo $final_doc[$i].','; } ?></span></td>
+	<td colspan="2"><b>Final Document Repository:</b><input id='upload' name="upload[]" type="file" multiple="multiple" style="width:100%"/><span><?php for($i=0;$i<count($final_doc);$i++) { echo $final_doc[$i]; if(count($final_doc) == 1 || $i == count($final_doc)-1 || strlen($final_doc[$i]) == 0) { echo ""; } else{ echo ",";} } ?></span></td>
 	</tr>
 	<input type="hidden" name="prev_doc" value="<?php for($i=0;$i<count($final_doc);$i++) { echo $final_doc[$i].','; } ?>">
 	<tr style="background-color:#0071C5;color:#fff;"><td colspan="2">
@@ -2558,7 +2567,7 @@ function func_content(){
 					echo "\' />  Instagram &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
 					echo "container += '<input type=\'radio\' value=\'Others\' name=\'txtup";
 					echo "_'+count+'[]";
-					echo "\' />  Others';";
+					echo "\' checked=\'checked\'/>  Others';";
 			
 			echo "container += '</div>';";
 			echo "container += '<div style=\'width:33%; padding:5px; float:left;\'>';";
@@ -2814,7 +2823,7 @@ function func_content(){
 						<input type='radio' value='Linkedin' name='txt_1[]'/> Linkedin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type='radio' value='Facebook' name='txt_1[]'/>  Facebook &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						<input type='radio' value='Instagram' name='txt_1[]'/> Instagram &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type='radio' value='Others' name='txt_1[]'/> Others";
+						<input type='radio' value='Others' name='txt_1[]' checked='checked'/> Others";
 						
 				echo "</div>";
 				
@@ -2839,7 +2848,7 @@ function func_content(){
 		echo "var container = '<div style=\'width:100%; padding:10px; margin:10px 0px; background; #f1f1f1; border:1px solid #ccc; float:left;\'>'; ";
 			echo "container += '<h3>Content Addition</h3>'; ";
 			echo "container += '<div style=\'width:50%; padding:5px; float:left;\'>';";
-			echo "container += '<label><b>Tactic Name:</b></label> <input type=\'text\' value=\'\' name=\'tactic[]\' style=\'padding:8px;border-color:#C0C0C0;width:80%;\'/>';";
+			echo "container += '<label><b>Tactic Name:</b></label> <input type=\'text\' value=\'\' name=\'tactic[]\' style=\'padding:8px;border-color:#C0C0C0;width:80%;\' />';";
 			echo "container += '</div>';";
 			echo "container += '<div style=\'width:50%; padding:5px; float:left;\'>';";
 			echo "container += '<label><b>Publish Date:</b></label> <input type=\'text\' value=\'\' class=\'publish\' name=\'publish[]\' style=\'padding:8px;border-color:#C0C0C0;width:80%;\'/>';";
@@ -2909,7 +2918,7 @@ function func_content(){
 					echo "\' />  Instagram &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';";
 					echo "container += '<input type=\'radio\' value=\'Others\' name=\'txt";
 					echo "_'+count+'[]";
-					echo "\' />  Others';";
+					echo "\' checked=\'checked\' />  Others';";
 			
 			echo "container += '</div>';";
 			

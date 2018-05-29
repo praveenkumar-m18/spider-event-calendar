@@ -654,23 +654,30 @@ function spiderbigcalendar() {
 								echo '<p style="text-align:center">' . __('There Is No Text For This Event', 'sp_calendar') . '</p>';
 							}*/
 							//Static Content praveen
-							
+								
+								
 								$tac_name = array_map(function ($object) { return $object->tactic_name; }, $content_piece);
 								$tactic_name_res = implode(', ', $tac_name);
 								
-								$cta = array_map(function ($object) { return $object->cta; }, $content_piece);
+								$content_piece_cta = $wpdb->get_results("SELECT * FROM ". $wpdb->prefix . "spidercalendar_custom_content_piece WHERE event_id=".$eventID." and cta != '' ");
+								$count_cta = count($content_piece_cta);
+								$cta = array_map(function ($object) { return $object->cta; }, $content_piece_cta);
 								$cta_res = implode(', ', $cta);
 								
-								$channel = array_map(function ($object) { return $object->content_channel; }, $content_piece);
+								$content_piece_channel = $wpdb->get_results("SELECT * FROM ". $wpdb->prefix . "spidercalendar_custom_content_piece WHERE event_id=".$eventID." and content_channel != '' ");
+								$count_channel = count($content_piece_channel);
+								$channel = array_map(function ($object) { return $object->content_channel; }, $content_piece_channel);
 								$channel_res = implode(', ', $channel);
 								
-								$url = array_map(function ($object) { return $object->url; }, $content_piece);
+								$content_piece_url = $wpdb->get_results("SELECT * FROM ". $wpdb->prefix . "spidercalendar_custom_content_piece WHERE event_id=".$eventID." and url != '' ");
+								$count_url = count($content_piece_url);
+								$url = array_map(function ($object) { return $object->url; }, $content_piece_url);
 								$url_res = implode(', ', $url);
 								echo '<br/>';
 								echo '<b>Tactic Name</b><div>'.$tactic_name_res .'</div>';
-							    echo '<b>Call-to-Action</b><div>'.$cta_res .'</div>';
-							    echo '<b>Channel</b><div>'.$channel_res .'</div>';
-							    echo '<b>Destination URL</b><div>'.$url_res .'</div>';
+								if($count_cta != 0){ echo '<b>Call-to-Action</b><div>'.$cta_res .'</div>'; }
+							    if($count_channel != 0){ echo '<b>Channel</b><div>'.$channel_res .'</div>'; }
+							    if($count_url != 0){ echo '<b>Destination URL</b><div>'.$url_res .'</div>'; }
 							?>
 							
 							

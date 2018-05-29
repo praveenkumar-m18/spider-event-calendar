@@ -892,20 +892,49 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
 	$a=1;
     foreach ($title as $key => $value) {
       if ($key == (int) $day) {
-        $ev_id = explode('<br>', $ev_ids[$key]);
+		$ev_id = explode('<br>', $ev_ids[$key]);
         array_pop($ev_id);
         $ev_ids_inline = implode(',', $ev_id);
         $ev_title = explode('</p>', $value);
         array_pop($ev_title);
+		$dt = $year."-".add_0(Month_num($month))."-".add_0($day);
         for ($j = 0; $j < count($ev_title); $j++) {
 		//edited
 		global $wpdb;
-		$row = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_event where id='$ev_ids[$key]'");
-		$d = $row[0]->date;
+		$rows = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where event_id='$ev_ids[$key]' and date ='$dt'");
+		$b =1;
+		if(count($rows) == 0 && $a == 1 && $j ==0){
+			 echo '<table style="border-spacing:0;width:100%;border-bottom:1px solid ' . $cell_border_color . '">
+            <tr>
+              <td style="height:' . $date_height . 'px;font-size:' . $date_font_size . 'px; padding-left:10px;background-color:' . $date_bg_color . ' !important; color:#6E7276">
+                <span style="padding-left:10px; font-size:' . $week_font_size . 'px;color:' . $week_font_color . '">' . week_convert($week_day) . '</span>
+                <span style="font-size:' . $day_month_font_size . 'px;color:' . $day_month_font_color . '">(' . __($month,'sp_calendar') . ' ' . (int) $day . ', ' . $year . ')</span>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <table style="border-bottom-left-radius: '.$border_radius2.'px;border-bottom-right-radius: '.$border_radius2.'px;height:' . $event_table_height . 'px;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . '" class="week_list">
+                  <tr>
+                    <td style="font-size:22px;font-weight:bold;width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . '"></td>
+                    <td><p style="color:' . $event_title_color . ';border:none;">&nbsp;' . __('There are no events on this date', 'sp_calendar') . '</p></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>';
+		}
+		foreach($rows as $row){
+		$d = $row->date;
+		$tactic_name = $row->tactic_name;
 		list($c_year,$c_month,$dy) = explode('-',$d);
 		$custom_date = (int)($c_year . $c_month);
+		$year = substr($date, 0, 4);
+		$month = substr($date, 5, 2);
+		$dt = substr($date, 8, 2);
+		$cnt_query = $wpdb->get_results("SELECT count(*) as cnt FROM " . $wpdb->prefix . "spidercalendar_custom_content_piece where date like '$year-$month-$dt%' ");
+		$c = $cnt_query[0]->cnt; 
 		if($repeat == 1 && $custom_date != $year_month ){
-			if($a == 1 && $j ==0){
+			if($j ==0 && $c == 0 && $b == 1){
 			echo '<table style="height:' . $event_table_height . 'px;border-spacing:0;border-spacing:0;width: 100%;background-color:' . $event_bg_color1 . ' !important">
             <tr>
               <td style="padding-left:10px; font-size:22px;font-weight:bold;width:15px;text-align:center;background-color:' . $event_num_bg_color1 . ' !important;color:' . $event_num_color . '"></td>
@@ -959,12 +988,14 @@ $theme = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'spide
                           'TB_iframe' => 1,
                           'tbWidth' => $popup_width,
                           'tbHeight' => $popup_height,
-                          ), $site_url) . '"><b>' . $ev_title[$j] . '</b>
+                          ), $site_url) . '"><b>' . $tactic_name . '</b>
                       </a>
                     </td>
                   </tr>
                 </table>';
-        }
+			}
+			$b++;
+		}
         }
       }
 	  $a = 2;

@@ -302,7 +302,7 @@ $cat_ids = substr($cat_ids, 0,-1);
     }
     $used = array();
 	//custom code block start
-	$base = $__FILE__.'wp-content/plugins/spider-event-calendar/attachments/content_images';
+	$base = '../wp-content/plugins/spider-event-calendar/attachments/content_images';
 	
 	
     foreach ($date_days as $date_day) {
